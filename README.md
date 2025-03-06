@@ -21,7 +21,7 @@ P.S.: если при запуске некоторые контейнеры б�
 
 8. Перейдите в веб-интерфейс Chronograf (http://localhost:8888) и откройте вкладку Data explorer.
 
-   - Нажмите на кнопку Add a query
+   - Нажмите на кнопку `Add a query`
    - Изучите вывод интерфейса и выберите БД telegraf.autogen
    - В measurments выберите cpu->host->telegraf-getting-started, а в fields выберите usage_system. Внизу появится график утилизации cpu.
    - Вверху вы можете увидеть запрос, аналогичный SQL-синтаксису. Поэкспериментируйте с запросом, попробуйте изменить группировку и интервал наблюдений.
@@ -111,3 +111,37 @@ P.S.: если при запуске некоторые контейнеры б�
 8. Метрика утилизации cpu
 
    <img src = "img/02.png" width = 100%>
+
+9. Изменил docker-compose.yml добавив строку для сервиса **telegraf**:
+```
+user: telegraf:982
+```
+
+Фрагмент файла:
+
+```
+  telegraf:
+    # Full tag list: https://hub.docker.com/r/library/telegraf/tags/
+    build:
+      context: ./images/telegraf/
+      dockerfile: ./${TYPE}/Dockerfile
+      args:
+        TELEGRAF_TAG: ${TELEGRAF_TAG}
+    image: "telegraf"
+    user: telegraf:982
+    environment:
+      HOSTNAME: "telegraf-getting-started"
+    # Telegraf requires network access to InfluxDB
+    links:
+      - influxdb
+    volumes:
+      # Mount for telegraf configuration
+      - ./telegraf/:/etc/telegraf/
+      # Mount for Docker API access
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - influxdb
+```
+
+Презапустил и обновил  страницу. [[inputs.docker]] уже был в конфиге, добавлять не пришлось.
+
